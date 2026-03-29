@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ── PRIMARY SEO ── -->
-<title>KreativeQR — Free QR Code Generator | Kreative Minds UAE</title>
+<title>KreativeQR — QR Code Generator by Kreative Minds UAE</title>
 <meta name="description" content="Generate free QR codes for URLs, vCards, WiFi, email, phone, SMS and maps. Custom colors, logo overlay, branded templates. Free tool by Kreative Minds UAE — Dubai's digital growth agency.">
 <meta name="keywords" content="QR code generator, free QR code, vCard QR, WiFi QR code, QR code Dubai, QR code UAE, branded QR code, custom QR code, Kreative Minds, KreativeQR">
 <meta name="author" content="Kreative Minds UAE">
@@ -311,38 +311,50 @@
     padding: 24px 22px;
   }
 
-  /* QR TYPES */
+  /* QR TYPES — 4x4 grid above canvas */
   .qr-types {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
-    margin-bottom: 24px;
+    gap: 7px;
+    margin-bottom: 18px;
+    width: 100%;
   }
   .type-btn {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
-    padding: 10px 4px;
-    background: var(--surface);
+    gap: 6px;
+    padding: 12px 6px;
+    background: var(--surface2);
     border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius);
     cursor: pointer;
-    transition: all 0.13s;
+    transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
     color: var(--muted);
     font-family: 'Syne', sans-serif;
     font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
+    font-weight: 700;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
+    transform: translateY(0) scale(1);
   }
-  .type-btn:hover { border-color: var(--border2); color: var(--text); }
+  .type-btn svg { width: 20px; height: 20px; transition: transform 0.18s ease; }
+  .type-btn:hover {
+    border-color: var(--gold-border);
+    color: var(--gold);
+    background: var(--gold-dim);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 16px rgba(245,197,24,0.12);
+  }
+  .type-btn:hover svg { transform: scale(1.15); }
+  .type-btn:active { transform: translateY(0) scale(0.97); }
   .type-btn.active {
     border-color: var(--gold);
-    background: var(--gold-bg);
+    background: var(--gold-dim);
     color: var(--gold);
+    box-shadow: 0 0 0 1px var(--gold-border), 0 4px 16px rgba(245,197,24,0.15);
   }
-  .type-btn svg { width: 18px; height: 18px; }
+  .type-btn.active svg { color: var(--gold); }
 
   /* SECTION */
   .section { margin-bottom: 22px; }
@@ -675,7 +687,47 @@
   }
   .toast.show { opacity: 1; transform: translateY(0); }
 
-  /* SCROLL */
+  /* ─── FOOTER ─── */
+  .site-footer {
+    margin-left: var(--sidebar-w, 420px);
+  }
+  .footer-line {
+    height: 1px;
+    background: var(--border);
+    width: 100%;
+  }
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 32px;
+    flex-wrap: wrap;
+  }
+  .footer-copy {
+    font-size: 11px;
+    color: var(--muted2);
+    font-family: 'DM Mono', monospace;
+  }
+  .footer-sep {
+    font-size: 11px;
+    color: var(--border2);
+  }
+  .footer-powered {
+    font-size: 11px;
+    color: var(--muted2);
+    font-family: 'DM Mono', monospace;
+  }
+  .footer-powered a {
+    color: var(--gold);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .footer-powered a:hover { text-decoration: underline; }
+
+  @media (max-width: 860px) {
+    .site-footer { margin-left: 0; }
+  }
   .panel::-webkit-scrollbar { width: 3px; }
   .panel::-webkit-scrollbar-track { background: transparent; }
   .panel::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
@@ -731,42 +783,6 @@
 
   <!-- ─── LEFT PANEL ─── -->
   <div class="panel">
-
-    <!-- QR TYPES -->
-    <div class="qr-types" id="type-btns">
-      <button class="type-btn active" data-type="url" onclick="setType('url',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-        URL
-      </button>
-      <button class="type-btn" data-type="text" onclick="setType('text',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        Text
-      </button>
-      <button class="type-btn" data-type="vcard" onclick="setType('vcard',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        vCard
-      </button>
-      <button class="type-btn" data-type="wifi" onclick="setType('wifi',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
-        WiFi
-      </button>
-      <button class="type-btn" data-type="email" onclick="setType('email',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        Email
-      </button>
-      <button class="type-btn" data-type="phone" onclick="setType('phone',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 13a19.79 19.79 0 01-3.07-8.67A2 2 0 012 2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 9.91a16 16 0 006.72 6.72l1.79-1.79a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-        Phone
-      </button>
-      <button class="type-btn" data-type="sms" onclick="setType('sms',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        SMS
-      </button>
-      <button class="type-btn" data-type="geo" onclick="setType('geo',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Maps
-      </button>
-    </div>
 
     <!-- CONTENT -->
     <div class="section">
@@ -973,6 +989,42 @@
       <div class="stage-header">
         <div class="qr-type-badge" id="qr-badge">URL</div>
         <div class="km-watermark">by <span>KreativeQR</span></div>
+      </div>
+
+      <!-- QR TYPE SELECTOR — above canvas -->
+      <div class="qr-types" id="type-btns">
+        <button class="type-btn active" data-type="url" onclick="setType('url',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+          URL
+        </button>
+        <button class="type-btn" data-type="text" onclick="setType('text',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Text
+        </button>
+        <button class="type-btn" data-type="vcard" onclick="setType('vcard',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          vCard
+        </button>
+        <button class="type-btn" data-type="wifi" onclick="setType('wifi',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+          WiFi
+        </button>
+        <button class="type-btn" data-type="email" onclick="setType('email',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Email
+        </button>
+        <button class="type-btn" data-type="phone" onclick="setType('phone',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 13a19.79 19.79 0 01-3.07-8.67A2 2 0 012 2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 9.91a16 16 0 006.72 6.72l1.79-1.79a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          Phone
+        </button>
+        <button class="type-btn" data-type="sms" onclick="setType('sms',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          SMS
+        </button>
+        <button class="type-btn" data-type="geo" onclick="setType('geo',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Maps
+        </button>
       </div>
 
       <div class="qr-canvas-wrap">
@@ -1392,11 +1444,18 @@ function applyPreset(el) {
   document.getElementById('bg-color').value = bg;
   document.getElementById('fg-hex').textContent = fg;
   document.getElementById('bg-hex').textContent = bg;
+  activeTemplate = null;
+  document.querySelectorAll('.tpl-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('tpl-clear').style.display = 'none';
+  const canvas = getCanvas();
+  if (canvas) generate();
 }
 
 function updateHex(which) {
   const val = document.getElementById(which + '-color').value;
   document.getElementById(which + '-hex').textContent = val;
+  const canvas = getCanvas();
+  if (canvas) generate();
 }
 
 function updateSlider(id) {
@@ -1673,5 +1732,18 @@ window.addEventListener('load', () => {
   setTimeout(generate, 300);
 });
 </script>
+
+<!-- ─── FOOTER ─── -->
+<footer class="site-footer">
+  <div class="footer-line"></div>
+  <div class="footer-inner">
+    <span class="footer-copy">© 2026 KreativeQR. All rights reserved.</span>
+    <span class="footer-sep">·</span>
+    <span class="footer-powered">Powered by <a href="https://kreativeminds.ae" target="_blank">kreativeminds.ae</a></span>
+    <span class="footer-sep">·</span>
+    <span class="footer-copy">Dubai, UAE</span>
+  </div>
+</footer>
+
 </body>
 </html>
