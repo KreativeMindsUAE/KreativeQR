@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KreativeQR — Admin Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231a1a1f'/%3E%3Crect x='4' y='4' width='10' height='10' rx='2' fill='%23F5C518'/%3E%3Crect x='18' y='4' width='10' height='10' rx='2' fill='%23F5C518'/%3E%3Crect x='4' y='18' width='10' height='10' rx='2' fill='%23F5C518'/%3E%3Crect x='18' y='18' width='4' height='4' rx='1' fill='%237C6BFF'/%3E%3Crect x='24' y='18' width='4' height='4' rx='1' fill='%237C6BFF'/%3E%3Crect x='18' y='24' width='4' height='4' rx='1' fill='%237C6BFF'/%3E%3Crect x='24' y='24' width='4' height='4' rx='1' fill='%23F5C518'/%3E%3C/svg%3E">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700;800&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg: #0a0a0d;
+  --surface: #111116;
+  --surface2: #18181f;
+  --surface3: #1f1f28;
+  --border: #242430;
+  --border2: #32323f;
+  --text: #f0f0f3;
+  --muted: #7a7a88;
+  --muted2: #555560;
+  --gold: #F5C518;
+  --gold2: #ffd84d;
+  --gold-dim: rgba(245,197,24,0.08);
+  --gold-border: rgba(245,197,24,0.18);
+  --purple: #7C6BFF;
+  --purple2: #a594ff;
+  --purple-dim: rgba(124,107,255,0.08);
+  --green: #2dd4a0;
+  --green-dim: rgba(45,212,160,0.08);
+  --coral: #ff6b6b;
+  --coral-dim: rgba(255,107,107,0.08);
+  --blue: #4db8ff;
+  --blue-dim: rgba(77,184,255,0.08);
+  --amber: #ffb347;
+  --amber-dim: rgba(255,179,71,0.08);
+  --sidebar-w: 220px;
+  --header-h: 60px;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 50;
+}
+
+.sidebar-brand {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sidebar-brand-icon {
+  width: 32px; height: 32px; flex-shrink: 0;
+}
+.sidebar-brand-icon svg { width: 32px; height: 32px; }
+.sidebar-brand-text { font-size: 17px; font-weight: 800; letter-spacing: -0.03em; }
+.sidebar-brand-text .k { color: var(--gold); }
+.sidebar-brand-text .q { color: var(--purple2); }
+.sidebar-brand-sub { font-size: 9px; font-family: 'DM Mono', monospace; color: var(--muted2); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 1px; }
+
+.sidebar-nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 2px; }
+.nav-section-label {
+  font-size: 9px; font-family: 'DM Mono', monospace;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted2); padding: 10px 8px 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: var(--radius-sm);
+  cursor: pointer; transition: all 0.12s;
+  color: var(--muted); font-size: 13.5px; font-weight: 500;
+  text-decoration: none; border: 1px solid transparent;
+}
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active {
+  background: var(--gold-dim); color: var(--gold);
+  border-color: var(--gold-border);
+}
+.nav-badge {
+  margin-left: auto; font-size: 10px; font-family: 'DM Mono', monospace;
+  background: var(--surface3); color: var(--muted);
+  padding: 2px 7px; border-radius: 10px;
+}
+.nav-item.active .nav-badge { background: var(--gold-border); color: var(--gold); }
+
+.sidebar-footer {
+  padding: 14px 12px;
+  border-top: 1px solid var(--border);
+}
+.sidebar-user {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; border-radius: var(--radius-sm);
+  background: var(--surface2); border: 1px solid var(--border);
+}
+.user-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: var(--gold); flex-shrink: 0;
+}
+.user-name { font-size: 12px; font-weight: 600; }
+.user-role { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green); margin-left: auto; flex-shrink: 0;
+}
+
+/* ── MAIN CONTENT ── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.topbar {
+  height: var(--header-h);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px;
+  background: rgba(10,10,13,0.9);
+  backdrop-filter: blur(10px);
+  position: sticky; top: 0; z-index: 40;
+}
+.topbar-left { display: flex; flex-direction: column; }
+.topbar-title { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.topbar-sub { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 1px; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+
+.tb-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: var(--radius-sm);
+  font-family: 'Syne', sans-serif; font-size: 12.5px; font-weight: 600;
+  cursor: pointer; transition: all 0.12s; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--muted);
+}
+.tb-btn:hover { border-color: var(--border2); color: var(--text); }
+.tb-btn.gold { background: var(--gold); border-color: var(--gold); color: #0a0a0d; }
+.tb-btn.gold:hover { background: var(--gold2); }
+.tb-btn svg { width: 14px; height: 14px; }
+
+.period-selector {
+  display: flex; gap: 2px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 3px;
+}
+.period-btn {
+  padding: 4px 10px; border-radius: 5px; cursor: pointer;
+  font-size: 11px; font-family: 'DM Mono', monospace;
+  font-weight: 500; color: var(--muted); transition: all 0.1s;
+  border: none; background: none;
+}
+.period-btn.active { background: var(--surface3); color: var(--text); }
+
+/* ── PAGE CONTENT ── */
+.page { padding: 24px 28px; }
+
+/* ── STAT CARDS ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.stat-card:hover { border-color: var(--border2); }
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  opacity: 0.06;
+  transform: translate(20px,-20px);
+}
+.stat-card.c-gold::before { background: var(--gold); }
+.stat-card.c-purple::before { background: var(--purple); }
+.stat-card.c-green::before { background: var(--green); }
+.stat-card.c-blue::before { background: var(--blue); }
+.stat-card.c-coral::before { background: var(--coral); }
+.stat-card.c-amber::before { background: var(--amber); }
+
+.stat-icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+}
+.stat-icon svg { width: 17px; height: 17px; }
+.stat-icon.gold { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold-border); }
+.stat-icon.purple { background: var(--purple-dim); color: var(--purple2); border: 1px solid rgba(124,107,255,0.2); }
+.stat-icon.green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(45,212,160,0.2); }
+.stat-icon.blue { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(77,184,255,0.2); }
+.stat-icon.coral { background: var(--coral-dim); color: var(--coral); border: 1px solid rgba(255,107,107,0.2); }
+.stat-icon.amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(255,179,71,0.2); }
+
+.stat-val {
+  font-size: 28px; font-weight: 800; letter-spacing: -0.03em;
+  line-height: 1; margin-bottom: 4px;
+}
+.stat-label { font-size: 12px; color: var(--muted); font-weight: 500; }
+.stat-delta {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 11px; font-family: 'DM Mono', monospace;
+  margin-top: 8px; padding: 2px 7px; border-radius: 20px;
+}
+.stat-delta.up { background: var(--green-dim); color: var(--green); }
+.stat-delta.down { background: var(--coral-dim); color: var(--coral); }
+.stat-delta svg { width: 10px; height: 10px; }
+
+/* ── GRID LAYOUTS ── */
+.row { display: grid; gap: 16px; margin-bottom: 16px; }
+.row.col-2 { grid-template-columns: 1fr 1fr; }
+.row.col-3 { grid-template-columns: 2fr 1fr; }
+.row.col-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.card-header {
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title {
+  font-size: 13.5px; font-weight: 700; letter-spacing: -0.01em;
+}
+.card-sub { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: 'DM Mono', monospace; }
+.card-body { padding: 20px; }
+.card-body.tight { padding: 0; }
+
+/* ── CHART CONTAINERS ── */
+.chart-wrap { position: relative; width: 100%; }
+.chart-wrap canvas { width: 100% !important; }
+
+/* ── QR TYPE BREAKDOWN ── */
+.type-list { display: flex; flex-direction: column; gap: 10px; }
+.type-row {
+  display: flex; align-items: center; gap: 12px;
+}
+.type-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.type-name { font-size: 13px; font-weight: 500; flex: 1; }
+.type-bar-wrap { flex: 2; height: 6px; background: var(--surface3); border-radius: 3px; overflow: hidden; }
+.type-bar { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.type-count { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--muted); min-width: 32px; text-align: right; }
+.type-pct { font-size: 11px; color: var(--muted2); min-width: 36px; text-align: right; }
+
+/* ── COUNTRY TABLE ── */
+.country-list { display: flex; flex-direction: column; }
+.country-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.country-row:last-child { border-bottom: none; }
+.country-row:hover { background: var(--surface2); }
+.country-flag { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+.country-name { font-size: 13px; font-weight: 500; flex: 1; }
+.country-bar-wrap { flex: 1.5; height: 5px; background: var(--surface3); border-radius: 3px; overflow: hidden; }
+.country-bar { height: 100%; border-radius: 3px; background: var(--gold); opacity: 0.7; }
+.country-count { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--muted); min-width: 36px; text-align: right; }
+.country-pct { font-size: 11px; color: var(--muted2); min-width: 34px; text-align: right; }
+
+/* ── RECENT TABLE ── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th {
+  text-align: left; padding: 10px 20px;
+  font-size: 10px; font-family: 'DM Mono', monospace;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted2); border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+.data-table td { padding: 12px 20px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--surface2); }
+
+.qr-type-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-family: 'DM Mono', monospace; font-weight: 500;
+  padding: 3px 9px; border-radius: 20px; letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.pill-url    { background: var(--blue-dim);   color: var(--blue);   border: 1px solid rgba(77,184,255,0.2); }
+.pill-vcard  { background: var(--purple-dim); color: var(--purple2); border: 1px solid rgba(124,107,255,0.2); }
+.pill-wifi   { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(45,212,160,0.2); }
+.pill-email  { background: var(--gold-dim);   color: var(--gold);   border: 1px solid var(--gold-border); }
+.pill-phone  { background: var(--amber-dim);  color: var(--amber);  border: 1px solid rgba(255,179,71,0.2); }
+.pill-sms    { background: var(--coral-dim);  color: var(--coral);  border: 1px solid rgba(255,107,107,0.2); }
+.pill-geo    { background: rgba(45,212,160,0.06); color: #7af5c8; border: 1px solid rgba(45,212,160,0.15); }
+
+.saved-badge {
+  font-size: 10px; font-family: 'DM Mono', monospace;
+  padding: 2px 7px; border-radius: 10px;
+}
+.saved-yes { background: var(--green-dim); color: var(--green); }
+.saved-no  { background: var(--surface3);  color: var(--muted2); }
+
+.email-cell { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.content-cell { font-size: 12px; color: var(--muted); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.time-cell { font-size: 11px; color: var(--muted2); font-family: 'DM Mono', monospace; white-space: nowrap; }
+
+/* ── MINI SPARKLINE STATS ── */
+.spark-row { display: flex; gap: 14px; margin-bottom: 24px; }
+.spark-card {
+  flex: 1; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.spark-info .spark-val { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
+.spark-info .spark-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.spark-chart { width: 80px; height: 32px; }
+
+/* ── DONUT LEGEND ── */
+.donut-wrap { display: flex; align-items: center; gap: 20px; }
+.donut-canvas { flex-shrink: 0; }
+.donut-legend { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.legend-row { display: flex; align-items: center; gap: 8px; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.legend-name { font-size: 12px; color: var(--muted); flex: 1; }
+.legend-val { font-size: 12px; font-family: 'DM Mono', monospace; font-weight: 500; }
+
+/* ── DEVICE SPLIT ── */
+.device-split { display: flex; gap: 16px; }
+.device-item { flex: 1; text-align: center; padding: 16px; background: var(--surface2); border-radius: var(--radius-sm); border: 1px solid var(--border); }
+.device-icon { font-size: 24px; margin-bottom: 8px; }
+.device-pct { font-size: 20px; font-weight: 800; }
+.device-lbl { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* ── EMPTY STATE ── */
+.empty { text-align: center; padding: 32px; color: var(--muted); }
+.empty svg { width: 40px; height: 40px; opacity: 0.2; margin-bottom: 10px; }
+
+/* ── SCROLL ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-icon">
+      <svg viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="16" fill="#1a1a1f"/>
+        <circle cx="16" cy="16" r="15.2" stroke="#F5C518" stroke-width="0.5" stroke-dasharray="2 2"/>
+        <rect x="4" y="4" width="8" height="8" rx="1.8" fill="#F5C518"/>
+        <rect x="5.2" y="5.2" width="5.6" height="5.6" rx="1" fill="#1a1a1f"/>
+        <rect x="6.5" y="6.5" width="3" height="3" rx="0.4" fill="#F5C518"/>
+        <rect x="20" y="4" width="8" height="8" rx="1.8" fill="#F5C518"/>
+        <rect x="21.2" y="5.2" width="5.6" height="5.6" rx="1" fill="#1a1a1f"/>
+        <rect x="22.5" y="6.5" width="3" height="3" rx="0.4" fill="#F5C518"/>
+        <rect x="4" y="20" width="8" height="8" rx="1.8" fill="#F5C518"/>
+        <rect x="5.2" y="21.2" width="5.6" height="5.6" rx="1" fill="#1a1a1f"/>
+        <rect x="6.5" y="22.5" width="3" height="3" rx="0.4" fill="#F5C518"/>
+        <rect x="20" y="20" width="3.5" height="3.5" rx="0.6" fill="#7C6BFF"/>
+        <rect x="24.5" y="20" width="3.5" height="3.5" rx="0.6" fill="#7C6BFF"/>
+        <rect x="20" y="24.5" width="3.5" height="3.5" rx="0.6" fill="#F5C518"/>
+        <rect x="24.5" y="24.5" width="3.5" height="3.5" rx="0.6" fill="#7C6BFF"/>
+        <text x="16" y="18.5" font-family="Arial Black,sans-serif" font-size="6" font-weight="900" fill="#F5C518" text-anchor="middle">KM</text>
+      </svg>
+    </div>
+    <div>
+      <div class="sidebar-brand-text"><span class="k">Kreative</span><span class="q">QR</span></div>
+      <div class="sidebar-brand-sub">Admin Panel</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <a class="nav-item active" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      All QR Codes
+      <span class="nav-badge">1,247</span>
+    </a>
+
+    <div class="nav-section-label">Analytics</div>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Scans
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      Countries
+    </a>
+
+    <div class="nav-section-label">Users</div>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Leads
+      <span class="nav-badge">312</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Email Digests
+    </a>
+
+    <div class="nav-section-label">System</div>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      API & Workers
+    </a>
+    <a class="nav-item" href="KreativeQR.html" target="_blank">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      Open Generator
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="user-avatar">KM</div>
+      <div>
+        <div class="user-name">Khalid Mir</div>
+        <div class="user-role">Admin</div>
+      </div>
+      <div class="status-dot"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">Dashboard Overview</div>
+      <div class="topbar-sub">Last updated: just now · kreativeminds.ae</div>
+    </div>
+    <div class="topbar-right">
+      <div class="period-selector">
+        <button class="period-btn" onclick="setPeriod('7d',this)">7D</button>
+        <button class="period-btn active" onclick="setPeriod('30d',this)">30D</button>
+        <button class="period-btn" onclick="setPeriod('90d',this)">90D</button>
+        <button class="period-btn" onclick="setPeriod('all',this)">All</button>
+      </div>
+      <button class="tb-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export CSV
+      </button>
+      <button class="tb-btn gold">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New QR
+      </button>
+    </div>
+  </div>
+
+  <!-- PAGE -->
+  <div class="page">
+
+    <!-- STAT CARDS -->
+    <div class="stats-grid">
+      <div class="stat-card c-gold">
+        <div class="stat-icon gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3"/></svg>
+        </div>
+        <div class="stat-val" id="sv-total">1,247</div>
+        <div class="stat-label">Total QR codes generated</div>
+        <div class="stat-delta up">
+          <svg viewBox="0 0 10 10"><polyline points="2,7 5,3 8,7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          +18.4% vs last period
+        </div>
+      </div>
+      <div class="stat-card c-purple">
+        <div class="stat-icon purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <div class="stat-val" id="sv-leads">312</div>
+        <div class="stat-label">Emails captured</div>
+        <div class="stat-delta up">
+          <svg viewBox="0 0 10 10"><polyline points="2,7 5,3 8,7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          +24.1% vs last period
+        </div>
+      </div>
+      <div class="stat-card c-green">
+        <div class="stat-icon green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10z"/></svg>
+        </div>
+        <div class="stat-val" id="sv-countries">38</div>
+        <div class="stat-label">Countries reached</div>
+        <div class="stat-delta up">
+          <svg viewBox="0 0 10 10"><polyline points="2,7 5,3 8,7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          +5 new this period
+        </div>
+      </div>
+      <div class="stat-card c-blue">
+        <div class="stat-icon blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="stat-val" id="sv-today">84</div>
+        <div class="stat-label">Generated today</div>
+        <div class="stat-delta up">
+          <svg viewBox="0 0 10 10"><polyline points="2,7 5,3 8,7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          +12 vs yesterday
+        </div>
+      </div>
+    </div>
+
+    <!-- CHART ROW -->
+    <div class="row col-3" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">QR codes generated over time</div>
+            <div class="card-sub">Daily count — last 30 days</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-wrap" style="height:200px">
+            <canvas id="chart-timeline"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">QR type breakdown</div>
+            <div class="card-sub">By category</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="donut-wrap">
+            <canvas id="chart-donut" class="donut-canvas" width="120" height="120" style="width:120px;height:120px"></canvas>
+            <div class="donut-legend" id="donut-legend"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TYPE LIST + COUNTRIES -->
+    <div class="row col-2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">QR types — detailed</div>
+            <div class="card-sub">All time breakdown</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="type-list" id="type-list"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Top countries</div>
+            <div class="card-sub">By QR generation origin</div>
+          </div>
+        </div>
+        <div class="card-body tight">
+          <div class="country-list" id="country-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEVICE SPLIT + HOURLY -->
+    <div class="row col-2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Peak generation hours</div>
+            <div class="card-sub">UTC — average across 30 days</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-wrap" style="height:140px">
+            <canvas id="chart-hourly"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Device & save rate</div>
+            <div class="card-sub">How users interact</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="device-split" style="margin-bottom:16px">
+            <div class="device-item">
+              <div class="device-icon">📱</div>
+              <div class="device-pct" style="color:var(--blue)">67%</div>
+              <div class="device-lbl">Mobile</div>
+            </div>
+            <div class="device-item">
+              <div class="device-icon">💻</div>
+              <div class="device-pct" style="color:var(--purple2)">28%</div>
+              <div class="device-lbl">Desktop</div>
+            </div>
+            <div class="device-item">
+              <div class="device-icon">📧</div>
+              <div class="device-pct" style="color:var(--gold)">25%</div>
+              <div class="device-lbl">Saved email</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;font-size:12px">
+              <span style="color:var(--muted)">QRs with logo overlay</span>
+              <span style="font-family:'DM Mono',monospace;color:var(--purple2)">18%</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px">
+              <span style="color:var(--muted)">Template applied</span>
+              <span style="font-family:'DM Mono',monospace;color:var(--gold)">41%</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px">
+              <span style="color:var(--muted)">Downloaded as PNG</span>
+              <span style="font-family:'DM Mono',monospace;color:var(--green)">78%</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px">
+              <span style="color:var(--muted)">Downloaded as SVG</span>
+              <span style="font-family:'DM Mono',monospace;color:var(--blue)">22%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECENT QR TABLE -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Recent QR codes</div>
+          <div class="card-sub">Latest 10 generated</div>
+        </div>
+        <button class="tb-btn" style="font-size:12px;padding:5px 12px">View all →</button>
+      </div>
+      <div class="card-body tight">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Content</th>
+              <th>Email saved</th>
+              <th>Country</th>
+              <th>Template</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="recent-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+const GOLD='#F5C518', PURPLE='#7C6BFF', GREEN='#2dd4a0', BLUE='#4db8ff',
+      CORAL='#ff6b6b', AMBER='#ffb347', TEAL='#00c9b1';
+
+const QR_TYPES = [
+  { name:'URL / Link',  key:'url',   count:541, color:BLUE   },
+  { name:'vCard',       key:'vcard', count:298, color:PURPLE },
+  { name:'WiFi',        key:'wifi',  count:187, color:GREEN  },
+  { name:'Email',       key:'email', count:112, color:GOLD   },
+  { name:'Phone',       key:'phone', count:64,  color:AMBER  },
+  { name:'SMS',         key:'sms',   count:28,  color:CORAL  },
+  { name:'Geo / Maps',  key:'geo',   count:17,  color:TEAL   },
+];
+
+const COUNTRIES = [
+  { flag:'🇦🇪', name:'United Arab Emirates', count:389, pct:31.2 },
+  { flag:'🇵🇰', name:'Pakistan',             count:214, pct:17.2 },
+  { flag:'🇸🇦', name:'Saudi Arabia',         count:156, pct:12.5 },
+  { flag:'🇬🇧', name:'United Kingdom',       count:98,  pct:7.9  },
+  { flag:'🇮🇳', name:'India',                count:87,  pct:7.0  },
+  { flag:'🇺🇸', name:'United States',        count:72,  pct:5.8  },
+  { flag:'🇪🇬', name:'Egypt',                count:58,  pct:4.7  },
+  { flag:'🇩🇪', name:'Germany',              count:44,  pct:3.5  },
+];
+
+const RECENT = [
+  { type:'url',   content:'kreativeminds.ae',           email:'khalid@km.ae',        country:'🇦🇪 UAE',  template:'KM Gold',  time:'2m ago'  },
+  { type:'vcard', content:'Noor Bano — Kreative Minds', email:'—',                   country:'🇦🇪 UAE',  template:'Navy',     time:'8m ago'  },
+  { type:'wifi',  content:'Office_WiFi_5G',             email:'info@startup.ae',     country:'🇦🇪 UAE',  template:'None',     time:'14m ago' },
+  { type:'url',   content:'instagram.com/khalidgraphy', email:'—',                   country:'🇵🇰 PAK',  template:'Purple',   time:'21m ago' },
+  { type:'email', content:'hello@kreativeminds.ae',     email:'noor@km.ae',          country:'🇦🇪 UAE',  template:'Classic',  time:'35m ago' },
+  { type:'vcard', content:'Ahmed Al-Rashidi — DIFC',    email:'ahmed@difc.ae',       country:'🇦🇪 UAE',  template:'KM Gold',  time:'1h ago'  },
+  { type:'url',   content:'akountbook.ae',              email:'—',                   country:'🇬🇧 UK',   template:'None',     time:'1h ago'  },
+  { type:'geo',   content:'25.197197, 55.274376',       email:'events@dm.gov.ae',    country:'🇦🇪 UAE',  template:'Lime',     time:'2h ago'  },
+  { type:'phone', content:'+971 50 123 4567',           email:'—',                   country:'🇸🇦 KSA',  template:'None',     time:'2h ago'  },
+  { type:'url',   content:'khalidmir.com',              email:'k@khalidmir.com',     country:'🇵🇰 PAK',  template:'KM Gold',  time:'3h ago'  },
+];
+
+function setPeriod(p, btn) {
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function buildTypeList() {
+  const total = QR_TYPES.reduce((s,t)=>s+t.count,0);
+  const el = document.getElementById('type-list');
+  el.innerHTML = QR_TYPES.map(t => {
+    const pct = ((t.count/total)*100).toFixed(1);
+    const w = ((t.count/QR_TYPES[0].count)*100).toFixed(1);
+    return `<div class="type-row">
+      <div class="type-dot" style="background:${t.color}"></div>
+      <div class="type-name">${t.name}</div>
+      <div class="type-bar-wrap"><div class="type-bar" style="width:${w}%;background:${t.color}"></div></div>
+      <div class="type-count">${t.count.toLocaleString()}</div>
+      <div class="type-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+function buildCountryList() {
+  const max = COUNTRIES[0].count;
+  const el = document.getElementById('country-list');
+  el.innerHTML = COUNTRIES.map(c => {
+    const w = ((c.count/max)*100).toFixed(1);
+    return `<div class="country-row">
+      <div class="country-flag">${c.flag}</div>
+      <div class="country-name">${c.name}</div>
+      <div class="country-bar-wrap"><div class="country-bar" style="width:${w}%"></div></div>
+      <div class="country-count">${c.count.toLocaleString()}</div>
+      <div class="country-pct">${c.pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+function buildRecentTable() {
+  const el = document.getElementById('recent-table');
+  el.innerHTML = RECENT.map(r => {
+    const pillClass = `pill-${r.type}`;
+    const savedClass = r.email !== '—' ? 'saved-yes' : 'saved-no';
+    const savedTxt = r.email !== '—' ? '✓ yes' : 'no';
+    return `<tr>
+      <td><span class="qr-type-pill ${pillClass}">${r.type}</span></td>
+      <td class="content-cell">${r.content}</td>
+      <td><span class="saved-badge ${savedClass}">${savedTxt}</span>${r.email !== '—' ? `<div class="email-cell" style="margin-top:2px">${r.email}</div>` : ''}</td>
+      <td style="font-size:13px">${r.country}</td>
+      <td style="font-size:12px;color:var(--muted)">${r.template}</td>
+      <td class="time-cell">${r.time}</td>
+    </tr>`;
+  }).join('');
+}
+
+function buildDonut() {
+  const total = QR_TYPES.reduce((s,t)=>s+t.count,0);
+  const ctx = document.getElementById('chart-donut').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: QR_TYPES.map(t=>t.name),
+      datasets: [{
+        data: QR_TYPES.map(t=>t.count),
+        backgroundColor: QR_TYPES.map(t=>t.color+'cc'),
+        borderColor: QR_TYPES.map(t=>t.color),
+        borderWidth: 1.5,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: false,
+      cutout: '68%',
+      plugins: { legend: { display: false }, tooltip: { callbacks: {
+        label: ctx => ` ${ctx.raw.toLocaleString()} (${((ctx.raw/total)*100).toFixed(1)}%)`
+      }}}
+    }
+  });
+  const legend = document.getElementById('donut-legend');
+  legend.innerHTML = QR_TYPES.map(t => `
+    <div class="legend-row">
+      <div class="legend-dot" style="background:${t.color}"></div>
+      <div class="legend-name">${t.name}</div>
+      <div class="legend-val" style="color:${t.color}">${t.count}</div>
+    </div>`).join('');
+}
+
+function buildTimeline() {
+  const days = 30;
+  const labels = [];
+  const data = [];
+  const now = new Date();
+  for (let i = days-1; i >= 0; i--) {
+    const d = new Date(now); d.setDate(d.getDate()-i);
+    labels.push(d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'}));
+    data.push(Math.round(25 + Math.random()*60 + (days-i)*0.8 + Math.sin(i/3)*8));
+  }
+  const ctx = document.getElementById('chart-timeline').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        borderColor: GOLD,
+        backgroundColor: 'rgba(245,197,24,0.06)',
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        pointHoverBackgroundColor: GOLD,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: {
+        backgroundColor: '#1f1f28', borderColor: '#32323f', borderWidth: 1,
+        titleColor: '#f0f0f3', bodyColor: '#7a7a88',
+        callbacks: { title: items => items[0].label, label: ctx => ` ${ctx.raw} QR codes` }
+      }},
+      scales: {
+        x: { grid: { color: '#242430' }, ticks: { color: '#555560', font: { size: 10, family: 'DM Mono' }, maxTicksLimit: 8 } },
+        y: { grid: { color: '#242430' }, ticks: { color: '#555560', font: { size: 10, family: 'DM Mono' } }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+function buildHourly() {
+  const labels = Array.from({length:24},(_,i)=> i===0?'12am': i<12?`${i}am`: i===12?'12pm':`${i-12}pm`);
+  const data = [2,1,1,1,2,4,8,18,32,44,52,58,61,54,48,42,50,62,55,38,28,18,10,5];
+  const ctx = document.getElementById('chart-hourly').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: data.map(v => v === Math.max(...data) ? GOLD+'ee' : PURPLE+'55'),
+        borderColor: data.map(v => v === Math.max(...data) ? GOLD : PURPLE+'88'),
+        borderWidth: 1,
+        borderRadius: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: {
+        backgroundColor:'#1f1f28', borderColor:'#32323f', borderWidth:1,
+        titleColor:'#f0f0f3', bodyColor:'#7a7a88',
+        callbacks: { label: ctx => ` avg ${ctx.raw} QRs/day` }
+      }},
+      scales: {
+        x: { grid: { display: false }, ticks: { color:'#555560', font:{ size:9, family:'DM Mono' }, maxTicksLimit:8 } },
+        y: { grid: { color:'#242430' }, ticks: { color:'#555560', font:{ size:9, family:'DM Mono' } }, beginAtZero:true }
+      }
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  buildTypeList();
+  buildCountryList();
+  buildRecentTable();
+  buildDonut();
+  buildTimeline();
+  buildHourly();
+});
+</script>
+</body>
+</html>
