@@ -1580,6 +1580,7 @@ function generate() {
     }, 120);
 
     toast('QR code generated ✓');
+        fetch('https://kreativeqr-api.kreativebrains1.workers.dev/api/track', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ type: currentType, content: content.substring(0,200), template: (activeTemplate ? (TEMPLATES.find(t=>t.id===activeTemplate)||{}).name : 'None') || 'None', hasLogo: !!logoDataUrl }) }).catch(()=>{});
   } catch(e) {
     toast('Error: content too long or invalid');
     console.error(e);
@@ -1704,14 +1705,39 @@ function copyQR() {
 }
 
 function captureLead() {
-  const email = document.getElementById('lead-email').value.trim();
-  if (!email || !email.includes('@')) { toast('Please enter a valid email'); return; }
-  localStorage.setItem('kqr_lead_email', email);
-  localStorage.setItem('kqr_lead_ts', Date.now());
-  document.getElementById('lead-form-row').style.display = 'none';
-  document.getElementById('lead-ok').style.display = 'block';
-  toast('QR saved — check your email ✓');
-}
+      const email = document.getElementById('lead-email').value.trim();
+      if (!email || !email.includes('@')) { toast('Please enter a valid email'); return; }
+      const qrContent = buildContent();
+      const tpl = activeTemplate ? TEMPLATES.find(t => t.id === activeTemplate) : null;
+      const btn = document.querySelector('[onclick="captureLead()"]');
+      if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+      fetch('https://kreativeqr-api.kreativebrains1.workers.dev/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          type: currentType,
+          content: qrContent.substring(0, 200),
+          template: tpl ? tpl.name : 'None',
+          hasLogo: !!logoDataUrl
+        })
+      })
+      .then(r => r.json())
+      .then(data => {
+        localStorage.setItem('kqr_lead_email', email);
+        localStorage.setItem('kqr_lead_ts', Date.now());
+        document.getElementById('lead-form-row').style.display = 'none';
+        document.getElementById('lead-ok').style.display = 'block';
+        toast('QR saved — check your email ✓');
+      })
+      .catch(() => {
+        localStorage.setItem('kqr_lead_email', email);
+        document.getElementById('lead-form-row').style.display = 'none';
+        document.getElementById('lead-ok').style.display = 'block';
+        toast('QR saved ✓');
+      })
+      .finally(() => { if (btn) { btn.disabled = false; btn.textContent = 'Save QR →'; } });
+    }
 
 function toast(msg) {
   const el = document.getElementById('toast');
