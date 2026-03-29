@@ -732,11 +732,18 @@
   .panel::-webkit-scrollbar-track { background: transparent; }
   .panel::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
 
+  /* Mobile QR type selector — hidden on desktop */
+  .mobile-qr-types { display: none; }
+
   @media (max-width: 860px) {
     .app { grid-template-columns: 1fr; }
     .panel { border-right: none; border-bottom: 1px solid var(--border); }
     .header { padding: 0 16px; }
     .preview-panel { padding: 24px 16px; }
+    .mobile-qr-types { display: block; margin-bottom: 18px; }
+    .mobile-qr-types .section-title { margin-bottom: 10px; }
+    .mobile-qr-types .qr-types { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-bottom: 0; }
+    .preview-panel .qr-types { display: none !important; }
   }
 </style>
 </head>
@@ -783,6 +790,45 @@
 
   <!-- ─── LEFT PANEL ─── -->
   <div class="panel">
+
+    <!-- MOBILE QR TYPE SELECTOR (visible only on mobile) -->
+    <div class="mobile-qr-types">
+      <div class="section-title">Select QR Type</div>
+      <div class="qr-types">
+        <button class="type-btn active" data-type="url" onclick="setType('url',this); syncTypeButtons('url')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+          URL
+        </button>
+        <button class="type-btn" data-type="text" onclick="setType('text',this); syncTypeButtons('text')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Text
+        </button>
+        <button class="type-btn" data-type="vcard" onclick="setType('vcard',this); syncTypeButtons('vcard')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          vCard
+        </button>
+        <button class="type-btn" data-type="wifi" onclick="setType('wifi',this); syncTypeButtons('wifi')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+          WiFi
+        </button>
+        <button class="type-btn" data-type="email" onclick="setType('email',this); syncTypeButtons('email')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Email
+        </button>
+        <button class="type-btn" data-type="phone" onclick="setType('phone',this); syncTypeButtons('phone')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 13a19.79 19.79 0 01-3.07-8.67A2 2 0 012 2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 9.91a16 16 0 006.72 6.72l1.79-1.79a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          Phone
+        </button>
+        <button class="type-btn" data-type="sms" onclick="setType('sms',this); syncTypeButtons('sms')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          SMS
+        </button>
+        <button class="type-btn" data-type="geo" onclick="setType('geo',this); syncTypeButtons('geo')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Maps
+        </button>
+      </div>
+    </div>
 
     <!-- CONTENT -->
     <div class="section">
@@ -1419,10 +1465,16 @@ function setFrame(style, el) {
   frame.className = 'qr-frame frame-' + style;
 }
 
-function setType(type, btn) {
+/* Sync active state across mobile and desktop QR type buttons */
+  function syncTypeButtons(type) {
+    document.querySelectorAll('.type-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.dataset.type === type);
+    });
+  }
+
+  function setType(type, btn) {
   currentType = type;
-  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  syncTypeButtons(type);
   document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-' + type).classList.add('active');
   const labels = {url:'URL',text:'TEXT',vcard:'VCARD',wifi:'WIFI',email:'EMAIL',phone:'PHONE',sms:'SMS',geo:'MAPS'};
