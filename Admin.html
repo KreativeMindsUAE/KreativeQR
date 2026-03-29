@@ -889,6 +889,44 @@ document.addEventListener('DOMContentLoaded', () => {
   buildDonut();
   buildTimeline();
   buildHourly();
+
+  // ── LIVE DATA FROM WORKERS API ──
+  const API = 'https://kreativeqr-api.kreativebrains1.workers.dev';
+
+  // Fetch live stats
+  fetch(API + '/api/stats', { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.total !== undefined) document.getElementById('sv-total').textContent = data.total.toLocaleString();
+      if (data.leads !== undefined) document.getElementById('sv-leads').textContent = data.leads.toLocaleString();
+      if (data.today !== undefined) document.getElementById('sv-today').textContent = data.today.toLocaleString();
+      if (data.countries !== undefined) document.getElementById('sv-countries').textContent = data.countries.toLocaleString();
+    })
+    .catch(() => console.log('Stats API unavailable — using defaults'));
+
+  // Fetch live leads for recent table
+  fetch(API + '/api/leads', { method: 'GET' })
+    .then(r => r.json())
+    .then(leads => {
+      if (leads && leads.length > 0) {
+        const el = document.getElementById('recent-table');
+        el.innerHTML = leads.slice(0, 10).map(r => {
+          const pillClass = 'pill-' + (r.type || 'url');
+          const hasEmail = r.email && r.email !== '—';
+          const savedClass = hasEmail ? 'saved-yes' : 'saved-no';
+          const savedTxt = hasEmail ? '✓ yes' : 'no';
+          return '<tr>' +
+            '<td><span class="qr-type-pill ' + pillClass + '">' + (r.type||'url') + '</span></td>' +
+            '<td class="content-cell">' + (r.content||'') + '</td>' +
+            '<td><span class="saved-badge ' + savedClass + '">' + savedTxt + '</span>' + (hasEmail ? '<div class="email-cell" style="margin-top:2px">' + r.email + '</div>' : '') + '</td>' +
+            '<td style="font-size:13px">' + (r.country||'🇦🇪 UAE') + '</td>' +
+            '<td style="font-size:12px;color:var(--muted)">' + (r.template||'None') + '</td>' +
+            '<td class="time-cell">' + (r.time||'just now') + '</td>' +
+          '</tr>';
+        }).join('');
+      }
+    })
+    .catch(() => console.log('Leads API unavailable — using defaults'));
 });
 </script>
 </body>
